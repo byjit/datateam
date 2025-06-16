@@ -1,8 +1,15 @@
-# Perpendicular AI
+# Datateam
 
-## Web Search Agent using Google ADK and Bright Data MCP
+This project named "Datateam" is a DataOps AI Agent — a system that automates the full lifecycle of dataset generation and processing. It sits between raw data and model training, doing the heavy lifting: collecting, cleaning, augmenting, validating, and preparing high-quality datasets.
 
-This repository contains a web search agent built with Google's Agent Development Kit (ADK) and Bright Data's Model Context Protocol (MCP). The agent can search the web and retrieve information based on user queries.
+It can perform the following actions:
+1. data collection from web
+2. Pre-processing (Cleaning, formatting, parsing, normalizing)
+3. Synthetic data generation
+4. Data validation
+5. Taxonomy generation
+6. Data augmentation
+7. Output generation (e.g., CSV, JSON, etc.)
 
 ## Prerequisites
 
@@ -11,52 +18,25 @@ This repository contains a web search agent built with Google's Agent Developmen
 - Google Gemini API key
 - Bright Data account with active Web Unblocker API zone (For Browser capabilities, Scraping Browser zone is required as well)
 
-### macOS Tkinter Setup
-
-If you encounter Tkinter import errors on macOS, ensure you have the proper Tkinter installation:
-
-```bash
-# Install Python with Tkinter support via Homebrew
-brew install python@3.13 tcl-tk
-
-# Recreate virtual environment with proper Python
-uv venv --python /opt/homebrew/bin/python3 .venv
-source .venv/bin/activate
-
-# Test Tkinter
-python -c "import tkinter; print('✓ Tkinter working!')"
-```
-
-You can also run the included test script:
-```bash
-python test_tkinter.py
-```
-
 ## Installation
 
 ### 1. Clone the repository
 
 ```bash
-git clone https://github.com/MeirKaD/MCP_ADK.git
-cd MCP_ADK
+git clone https://github.com/byjit/datateam.git
+cd datateam
 ```
 
 ### 2. Create and activate a virtual environment
 
 ```bash
-# For macOS/Linux
-python -m venv .venv
+uv venv
 source .venv/bin/activate
-
-# For Windows
-python -m venv .venv
-.venv\Scripts\activate
 ```
 
 ### 3. Install the required packages
-
 ```bash
-pip install google-adk google-generativeai python-dotenv
+uv pip install google-adk google-generativeai python-dotenv
 ```
 
 ### 4. Install Bright Data MCP package
@@ -78,13 +58,6 @@ Then, edit the `.env` file and add your Google Gemini API key:
 ```
 GOOGLE_GENAI_USE_VERTEXAI="False"
 GOOGLE_API_KEY="YOUR_GEMINI_API_KEY"
-```
-
-### 6. Configure Bright Data MCP credentials
-
-Edit the `web_search_agent/agent.py` file and replace the placeholders with your Bright Data credentials:
-
-```python
 "API_TOKEN": "YOUR_BRIGHT_DATA_API_TOKEN",
 "WEB_UNLOCKER_ZONE": "unblocker",
 "BROWSER_AUTH": "brd-customer-YOUR_CUSTOMER_ID-zone-scraping_browser:YOUR_PASSWORD"
@@ -93,7 +66,6 @@ Edit the `web_search_agent/agent.py` file and replace the placeholders with your
 ## Running the Agent with ADK Web Interface
 
 ### 1. Start the ADK Web Server
-
 ```bash
 adk web
 ```
@@ -103,38 +75,3 @@ This will start a local web server, typically at `http://localhost:8000`.
 ### 2. Access the Web Interface
 
 Open your browser and navigate to `http://localhost:8000` to interact with your agent through the ADK web interface.
-
-## How the Agent Works
-
-The agent is built using Google's Agent Development Kit (ADK) and uses Gemini 2.0 Flash as the underlying model. It leverages Bright Data's Model Context Protocol (MCP) to perform web searches and retrieve information from websites.
-
-The agent initializes the MCP toolset asynchronously when the first request is received, connecting to Bright Data's services to enable web search capabilities.
-
-## Features
-
-- Web search using Bright Data MCP
-- Information retrieval from websites
-- Answering questions based on web content
-- Automatic cleanup of resources when the agent terminates
-
-## Customization
-
-You can customize the agent's behavior by modifying the `web_search_agent/agent.py` file:
-
-- Change the model by updating the `model` parameter
-- Modify the agent's description and instructions
-- Add additional tools or capabilities
-
-## Troubleshooting
-
-If you encounter issues:
-
-1. Ensure your Google Gemini API key is valid
-2. Check your Bright Data credentials
-3. Verify that Node.js and npm are correctly installed
-4. Make sure you have the correct version of Python and all required packages
-
-## Acknowledgements
-
-- Google Agent Development Kit (ADK)
-- Bright Data MCP
