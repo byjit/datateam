@@ -1,0 +1,28 @@
+# Datateam
+
+This project named "Datateam" is a DataOps AI Agent — a system that automates the full lifecycle of dataset generation and processing. It sits between raw data and model training, doing the heavy lifting: collecting, cleaning, augmenting, validating, and preparing high-quality datasets.
+
+It can perform the following actions:
+1. data collection from web
+2. Pre-processing (Cleaning, formatting, parsing, normalizing)
+3. Synthetic data generation
+4. Data validation
+5. Taxonomy generation
+6. Data augmentation
+7. Output generation (e.g., CSV, JSON, etc.)
+
+## Documentation Requirements
+
+-   Update relevant documentation in /docs when modifying features
+-   Keep README.md in sync with new capabilities
+
+## Tech Stack
+
+- Python
+- uv for virtual environment management
+- Google Agent development Kit for agent development
+- Brightdata MCP (Model Context Protocol) for web interaction
+
+## Documentation Records
+
+- `docs/brightdata_mcp_overview.md`: Overview of Bright Data MCP server and its tools
