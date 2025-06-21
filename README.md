@@ -45,9 +45,9 @@ uv pip install google-adk google-generativeai python-dotenv
 npm install -g @brightdata/mcp
 ```
 
-### 5. Install Kaggle MCP
+### 5. Setup Kaggle 
 
-Check out: https://github.com/54yyyu/kaggle-mcp?tab=readme-ov-file#quick-installation
+Download your kaggle credentials json inside `~/.kaggle/kaggle.json` 
 
 ### 6. Set up environment variables
 

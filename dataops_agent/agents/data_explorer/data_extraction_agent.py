@@ -1,59 +1,18 @@
-from google.adk.agents import Agent
+from google.adk.agents import LlmAgent
 from google.adk.agents.callback_context import CallbackContext
 from google.adk.models import LlmRequest, LlmResponse
 from google.genai import types
-from dataops_agent.tools.mcp_initializer import initialize_mcp_tools, get_mcp_initialization_status
 from typing import List, Dict, Any, Optional
 import asyncio
-import time
+import time, os
+import asyncio
+from google.adk.tools.mcp_tool.mcp_toolset import MCPToolset, StdioServerParameters
 
 DATA_EXTRACTION_AI_MODEL =  "gemini-2.5-flash-preview-05-20"
 
-# Global variables for MCP tool initialization (will be managed by mcp_initializer)
-_mcp_tools = None
-_initialized = False
-
-def set_mcp_tools(tools, initialized_status):
-    """
-    Sets the MCP tools and initialization status for the data extraction agent.
-    This function is called by the MCP initializer to provide the necessary tools.
-    """
-    global _mcp_tools, _initialized
-    _mcp_tools = tools
-    _initialized = initialized_status
-
-def check_data_extraction_tools(callback_context: CallbackContext, llm_request: LlmRequest) -> Optional[LlmResponse]:
-    """
-    Callback function to check if data extraction tools are initialized.
-    If not, it triggers the MCP initialization and asks the user to retry.
-    """
-    # Import initialize_mcp_tools and get_mcp_initialization_status here to avoid circular dependency at module level
-    from dataops_agent.tools.mcp_initializer import initialize_mcp_tools, get_mcp_initialization_status
-
-    global _mcp_tools, _initialized
-    
-    agent_name = callback_context.agent_name
-    
-    root_agent_instance = getattr(callback_context, 'root_agent_instance', None)
-
-    if agent_name == "data_extraction_agent" and not get_mcp_initialization_status():
-        print("Data Extraction agent needs tools - will start initialization")
-        
-        loop = asyncio.get_event_loop()
-        loop.create_task(initialize_mcp_tools(root_agent_instance=root_agent_instance))
-        
-        print("Initialization started in background. Asking user to retry.")
-        return LlmResponse(
-            content=types.Content(
-                role="model",
-                parts=[types.Part(text="Initializing data extraction tools. This happens only once. Please try your query again in a few moments.")]
-            )
-        )
-    
-    return None
 
 def create_data_extraction_agent():
-    return Agent(
+    return LlmAgent(
         name="data_extraction_agent",
         description="Executes data extraction using optimal Bright Data MCP tools.",
         model=DATA_EXTRACTION_AI_MODEL,
@@ -92,4 +51,17 @@ def create_data_extraction_agent():
         Always justify your tool selection and extraction steps. If you encounter issues, provide clear error messages or suggestions for alternative approaches.
         """,
         # before_model_callback=check_data_extraction_tools
+        tools=[
+            MCPToolset(
+                connection_params=StdioServerParameters(
+                    command='npx',
+                    args=["-y", "@brightdata/mcp"],
+                    env={
+                        "API_TOKEN": os.getenv("BRIGHTDATA_API_TOKEN", ""),
+                        "WEB_UNLOCKER_ZONE": os.getenv("BRIGHTDATA_UB_ZONE", ""),
+                        "BROWSER_AUTH": os.getenv("BRIGHTDATA_BROWSER_AUTH", ""),
+                    }
+                )
+            ),
+        ]
     )
