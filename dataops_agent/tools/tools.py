@@ -33,7 +33,7 @@ def search_kaggle_datasets(query: str, max_results: int = 10):
         logging.error(f"An error occurred while searching for datasets: {e}")
         return []
 
-def download_kaggle_dataset(dataset_ref: str, download_path: str = os.getcwd()):
+def download_kaggle_dataset(dataset_ref: str, download_path: str = os.path.join(os.getcwd(), "data")):
     """
     Downloads a dataset from Kaggle.
 
@@ -102,5 +102,32 @@ def search_sources_using_sonar(query: str):
         return None
 
 
+def save_to_local_file(data: dict, filename: str, type: str = 'txt'):
+    """
+    Saves the provided data to a local file in the specified format.
+
+    Args:
+        data (dict): The data to save.
+        filename (str): The name of the file to save the data to.
+        type (str): The format to save the data in ('txt' or 'json').
+    """
+    try:
+        import json
+        # Ensure the 'data' directory exists in the current working directory
+        data_dir = os.path.join(os.getcwd(), "data")
+        os.makedirs(data_dir, exist_ok=True)
+        file_path = os.path.join(data_dir, filename)
+        with open(file_path, 'w') as f:
+            if type == 'json':
+                json.dump(data, f, indent=4)
+            else:
+                f.write(str(data))
+        logging.info(f"Data saved to {file_path}")
+    except Exception as e:
+        logging.error(f"An error occurred while saving data to file: {e}")
+
+
 search_kaggle_datasets_tool = FunctionTool(func=search_kaggle_datasets)
 search_sources_using_sonar_tool = FunctionTool(func=search_sources_using_sonar)
+download_kaggle_dataset_tool = FunctionTool(func=download_kaggle_dataset)
+save_to_local_file_tool = FunctionTool(func=save_to_local_file)

@@ -6,6 +6,7 @@ from typing import List, Dict, Any, Optional
 import asyncio
 import time, os
 import asyncio
+from dataops_agent.tools.tools import download_kaggle_dataset_tool, save_to_local_file_tool
 from google.adk.tools.mcp_tool.mcp_toolset import MCPToolset, StdioServerParameters
 
 DATA_EXTRACTION_AI_MODEL =  "gemini-2.5-flash-preview-05-20"
@@ -13,39 +14,39 @@ DATA_EXTRACTION_AI_MODEL =  "gemini-2.5-flash-preview-05-20"
 
 data_extraction_agent = LlmAgent(
     name="data_extraction_agent",
-    description="Executes data extraction using optimal Bright Data MCP tools.",
+    description="Can scrape data from any sources, of any type. Can download kaggle datasets too.",
     model=DATA_EXTRACTION_AI_MODEL,
     output_key="extracted_data",
     instruction="""
     You are a data extraction agent responsible for gathering data required for dataset generation. 
 
-    Given:
-    - A discovery source URL
-    - The type of discovery source (either "general webresearch" or a specific site)
-    - A description of the expected data from this source
-
-    Your tasks:
-    1. Analyze the provided information to determine the most appropriate extraction strategy.
-    2. Select the correct tool(s) based on the following rules:
-        - If the source hints at "amazon", use: 
-          - web_data_amazon_product
-          - web_data_amazon_product_reviews
-        - If the source hints at "linkedin", use:
-          - web_data_linkedin_person_profile
-          - web_data_linkedin_company_profile
-        - If the data type is related to "social_media", use:
-          - web_data_instagram_profiles
-          - web_data_x_posts
-          - web_data_facebook_posts
-        - If the source is another specific site:
-          - Use browser tools in this order:
-              1. scraping_browser_navigate (to visit the URL)
-              2. scraping_browser_get_text (to extract content)
-              3. scraping_browser_links and scraping_browser_click (to navigate within the site if needed)
-        - If the source is general web research:
-          - Use the search_engine tool
-
+    You will be provided with some information. You need to analyze this information and make a plan to extract the data from the given source.
+    If it's a kaggle dataset, you will download it using the provided tool `download_kaggle_dataset_tool`. 
+    
+    If it's any other web source, you will use the appropriate web scraping tools to extract the data.
+    
+    Steps:
+    1. Analyze the provided information to determine the type of source and the expected data.
+    2. Select the appropriate tools based on the type of source:
+    - If the source is a kaggle dataset, use `download_kaggle_dataset_tool`.
+    - If the source hints at "amazon", use:
+      - `web_data_amazon_product`
+      - `web_data_amazon_product_reviews`
+    - If the source hints at "linkedin", use:
+      - `web_data_linkedin_person_profile`
+      - `web_data_linkedin_company_profile`
+    - If the data type is related to "social_media", use:
+      - `web_data_instagram_profiles`
+      - `web_data_x_posts`
+      - `web_data_facebook_posts`
+    - If the source is another specific site, plan on how to scrape it using the following tools (can be used in combination with multi-turns):
+      1. `scraping_browser_navigate` (to visit the URL)
+      2. `scraping_browser_get_text` (to extract content)
+      3. `scraping_browser_links` and `scraping_browser_click` (to navigate within the site if needed)
+    - If the source is general web research, use the `search_engine` tool.
     3. Extract the relevant data as described and return it in a structured format suitable for dataset generation.
+    4. If the data is extracted/scraped, once it is extracted save it to the local using the `save_to_local_file_tool`.
+    5. Tell the user about the status
 
     Always justify your tool selection and extraction steps. If you encounter issues, provide clear error messages or suggestions for alternative approaches.
     """,
@@ -62,5 +63,7 @@ data_extraction_agent = LlmAgent(
                 }
             )
         ),
+        download_kaggle_dataset_tool,
+        save_to_local_file_tool,
     ]
   )
