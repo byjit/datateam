@@ -1,5 +1,7 @@
 from google.adk.agents import Agent
 from typing import List, Dict, Any
+from google.genai import types
+
 
 SCHEMA_GENERATION_AI_MODEL = "gemini-2.0-flash"
 
@@ -8,6 +10,9 @@ def create_schema_generator_agent():
         name="schema_generator_agent",
         description="Ensures extracted data conforms to specified schema.",
         model=SCHEMA_GENERATION_AI_MODEL,
+        generate_content_config=types.GenerateContentConfig(
+            temperature=0.2, # More deterministic output
+        ),
         output_key="validated_data",
         instruction="""
         You are a schema validation agent. Your task is to ensure that the extracted data from various sources (such as websites, documents, or APIs) is converted into a CSV format that strictly adheres to the user-specified schema.

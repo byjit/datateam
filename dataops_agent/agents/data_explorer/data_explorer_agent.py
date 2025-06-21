@@ -4,6 +4,9 @@ from google.adk.models import LlmRequest, LlmResponse
 from google.genai import types
 from typing import List, Dict, Any, Optional
 import asyncio
+from google.adk.tools.mcp_tool.mcp_toolset import MCPToolset, StdioServerParameters
+from google.adk.tools import google_search
+import os
 
 SOURCE_DISCOVERY_AI_MODEL = "gemini-2.0-flash"
 
@@ -50,9 +53,9 @@ def check_source_discovery_tools(callback_context: CallbackContext, llm_request:
     
     return None
 
-def create_source_discovery_agent():
+def create_data_explorer_agent():
     return Agent(
-        name="source_discovery_agent",
+        name="data_explorer_agent",
         description="Identifies and prioritizes web sources for data extraction.",
         model=SOURCE_DISCOVERY_AI_MODEL,
         instruction="""
@@ -71,6 +74,19 @@ def create_source_discovery_agent():
         - `scraping_browser_get_text` when you need to retrieve the visible text content of the current page.
         - `search_engine` to perform web searches and list relevant sites.
         """,
-        output_key="discovered_sources",
+        tools=[
+            MCPToolset(
+                connection_params=StdioServerParameters(
+                    command='npx',
+                    args=["-y", "@brightdata/mcp"],
+                    env={
+                        "API_TOKEN": os.getenv("BRIGHTDATA_API_TOKEN", ""),
+                        "WEB_UNLOCKER_ZONE": os.getenv("BRIGHTDATA_UB_ZONE", ""),
+                        "BROWSER_AUTH": os.getenv("BRIGHTDATA_BROWSER_AUTH", ""),
+                    }
+                )
+            ),
+            google_search
+        ],
         # before_model_callback=check_source_discovery_tools
     )

@@ -45,7 +45,11 @@ uv pip install google-adk google-generativeai python-dotenv
 npm install -g @brightdata/mcp
 ```
 
-### 5. Set up environment variables
+### 5. Install Kaggle MCP
+
+Check out: https://github.com/54yyyu/kaggle-mcp?tab=readme-ov-file#quick-installation
+
+### 6. Set up environment variables
 
 Create a `.env` file in the root directory by copying the `.env.template`:
 
