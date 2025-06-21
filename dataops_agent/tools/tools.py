@@ -3,6 +3,8 @@ import logging
 from textwrap import dedent
 from kaggle.api.kaggle_api_extended import KaggleApi
 import requests
+from google.adk.tools import FunctionTool
+
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -25,7 +27,8 @@ def search_kaggle_datasets(query: str, max_results: int = 10):
         filetype = 'all'
         page = 1
         datasets = api.dataset_list(sort_by=sort_by, file_type=filetype, search=query, page=page, min_size=1024)
-        return datasets
+        # Limit results and convert to dict for serialization
+        return [d.to_dict() for d in datasets[:max_results]]
     except Exception as e:
         logging.error(f"An error occurred while searching for datasets: {e}")
         return []
@@ -55,7 +58,7 @@ def download_kaggle_dataset(dataset_ref: str, download_path: str = os.getcwd()):
 
 
 
-def search_using_sonar(query: str):
+def search_sources_using_sonar(query: str):
     """
     Queries Sonar API to find the best sites for obtaining datasets related to the query.
 
@@ -79,13 +82,14 @@ def search_using_sonar(query: str):
                     "content": dedent(
                         """
                         You are a helpful assistant whose role is to help find sources from which either datasets can be downloaded or data can be scraped from to create a dataset. 
-                        Be precise and concise. Do whichever is the best.
+                        Be precise and concise. Do whichever is the best. If possible, also tell how to download the dataset or scrape the data.
+                        If you cannot find any sources, say so.
                         """
                     )
                 },
                 {
                     "role": "user",
-                    "content": f"Where can I find datasets or aggregated data for: {query}?"
+                    "content": f"Where can I find data for: {query}?"
                 }
             ]
         }
@@ -96,3 +100,7 @@ def search_using_sonar(query: str):
     except Exception as e:
         logging.error(f"An error occurred while querying Sonar API: {e}")
         return None
+
+
+search_kaggle_datasets_tool = FunctionTool(func=search_kaggle_datasets)
+search_sources_using_sonar_tool = FunctionTool(func=search_sources_using_sonar)
