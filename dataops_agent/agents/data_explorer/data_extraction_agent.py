@@ -6,7 +6,7 @@ from typing import List, Dict, Any, Optional
 import asyncio
 import time, os
 import asyncio
-from dataops_agent.tools.tools import download_kaggle_dataset_tool, save_to_local_file_tool
+from dataops_agent.tools.web_tools import download_kaggle_dataset_tool, save_to_local_file_tool
 from google.adk.tools.mcp_tool.mcp_toolset import MCPToolset, StdioServerParameters
 
 DATA_EXTRACTION_AI_MODEL =  "gemini-2.5-flash-preview-05-20"

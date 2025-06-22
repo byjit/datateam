@@ -11,6 +11,10 @@ from dataops_agent.agents.data_explorer import (
     data_explorer_agent,
     data_extraction_agent
 )
+from dataops_agent.agents import (
+    data_processor_agent,
+    data_taxonomy_agent,
+)
 
 
 
@@ -43,6 +47,7 @@ root_agent = LlmAgent(
     sub_agents=[
         data_explorer_agent,
         data_extraction_agent,
+        data_processor_agent.data_processor_agent,
     ],
     tools=[]
 )
