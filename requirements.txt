@@ -17,6 +17,7 @@ dask==2025.5.1
 distributed==2025.5.1
 distro==1.9.0
 docstring-parser==0.16
+faker==37.4.0
 fastapi==0.115.12
 filetype==1.2.0
 fonttools==4.58.4
