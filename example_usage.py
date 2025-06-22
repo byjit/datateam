@@ -10,40 +10,9 @@ import pandas as pd
 import numpy as np
 from datetime import datetime, timedelta
 import logging
-
-# Import all the new data processing tools
-from dataops_agent.tools.data_processing.data_processing_tools import (
-    # Core tools
-    clean_dataframe_comprehensive_tool,
-    validate_data_quality_tool,
-    
-    # Profiling tools
-    profile_dataframe_comprehensive_tool,
-    detect_data_types_advanced_tool,
-    generate_data_quality_score_tool,
-    
-    # Feature engineering tools
-    create_polynomial_features_tool,
-    create_datetime_features_tool,
-    create_text_features_tool,
-    encode_categorical_features_tool,
-    
-    # Data generation tools
-    generate_synthetic_data_tool,
-    balance_dataset_tool,
-    infer_data_schema_tool,
-    
-    # Time series tools
-    detect_time_series_patterns_tool,
-    create_time_series_features_tool,
-    fill_missing_time_series_tool
-)
-
 # Also import functions directly for easier use
 from dataops_agent.tools.data_processing.profiling_tools import profile_dataframe_comprehensive
-from dataops_agent.tools.data_processing.generation_tools import generate_synthetic_data
 from dataops_agent.tools.data_processing.feature_engineering_tools import create_polynomial_features
-from dataops_agent.tools.data_processing.timeseries_tools import detect_time_series_patterns
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -109,125 +78,8 @@ def demo_feature_engineering(df):
     print(f"  After polynomial features: {len(poly_df.columns)}")
     print(f"  New polynomial columns: {[col for col in poly_df.columns if col.startswith('poly_')][:3]}...")
     
-    # Create datetime features
-    print("\n2. Creating datetime features...")
-    datetime_df = create_datetime_features(df, ['join_date'])
-    datetime_cols = [col for col in datetime_df.columns if 'join_date_' in col]
-    print(f"  Created {len(datetime_cols)} datetime features:")
-    print(f"  Sample features: {datetime_cols[:5]}")
-    
-    # Create text features (if we had text columns)
-    print("\n3. Text feature extraction...")
-    # Convert name to text features for demo
-    text_df = create_text_features(df, ['name'])
-    text_cols = [col for col in text_df.columns if 'name_' in col]
-    print(f"  Created {len(text_cols)} text features:")
-    print(f"  Text features: {text_cols}")
-    
     return poly_df
 
-
-def demo_synthetic_data_generation():
-    """Demonstrate synthetic data generation."""
-    print("\n=== SYNTHETIC DATA GENERATION DEMO ===")
-    
-    # Define schema for synthetic data
-    schema = {
-        'customer_id': {
-            'type': 'numeric',
-            'params': {'distribution': 'integer', 'low': 1000, 'high': 9999}
-        },
-        'age': {
-            'type': 'numeric', 
-            'params': {'distribution': 'normal', 'mean': 35, 'std': 12}
-        },
-        'income': {
-            'type': 'numeric',
-            'params': {'distribution': 'normal', 'mean': 50000, 'std': 15000}
-        },
-        'gender': {
-            'type': 'categorical',
-            'params': {'categories': ['Male', 'Female', 'Other'], 'probabilities': [0.45, 0.45, 0.1]}
-        },
-        'city': {
-            'type': 'categorical',
-            'params': {'categories': ['New York', 'Los Angeles', 'Chicago', 'Houston', 'Phoenix']}
-        },
-        'signup_date': {
-            'type': 'datetime',
-            'params': {'start_date': '2020-01-01', 'end_date': '2023-12-31'}
-        },
-        'name': {
-            'type': 'text',
-            'params': {'text_type': 'name'}
-        },
-        'email': {
-            'type': 'text',
-            'params': {'text_type': 'email'}
-        },
-        'is_premium': {
-            'type': 'boolean',
-            'params': {'prob_true': 0.3}
-        }
-    }
-    
-    # Generate synthetic data
-    print("\n1. Generating synthetic customer data...")
-    synthetic_df = generate_synthetic_data(schema, n_rows=500, seed=42)
-    print(f"  Generated dataset shape: {synthetic_df.shape}")
-    print(f"  Columns: {list(synthetic_df.columns)}")
-    print("\n  Sample rows:")
-    print(synthetic_df.head(3).to_string())
-    
-    return synthetic_df
-
-
-def demo_time_series_analysis():
-    """Demonstrate time series analysis capabilities."""
-    print("\n=== TIME SERIES ANALYSIS DEMO ===")
-    
-    # Create sample time series data
-    dates = pd.date_range('2020-01-01', '2023-12-31', freq='D')
-    n_days = len(dates)
-    
-    # Create realistic time series with trend, seasonality, and noise
-    trend = np.linspace(100, 200, n_days)
-    seasonal = 50 * np.sin(2 * np.pi * np.arange(n_days) / 365.25)  # Annual seasonality
-    weekly = 20 * np.sin(2 * np.pi * np.arange(n_days) / 7)        # Weekly seasonality
-    noise = np.random.normal(0, 10, n_days)
-    
-    sales = trend + seasonal + weekly + noise
-    website_visits = trend * 2 + seasonal * 1.5 + np.random.normal(0, 20, n_days)
-    
-    ts_df = pd.DataFrame({
-        'date': dates,
-        'sales': sales,
-        'website_visits': website_visits,
-        'temperature': 20 + 15 * np.sin(2 * np.pi * np.arange(n_days) / 365.25) + np.random.normal(0, 3, n_days)
-    })
-    
-    print(f"\n1. Time series dataset shape: {ts_df.shape}")
-    print(f"   Date range: {ts_df['date'].min()} to {ts_df['date'].max()}")
-    
-    # Detect patterns
-    print("\n2. Detecting time series patterns...")
-    patterns = detect_time_series_patterns(
-        ts_df, 
-        datetime_column='date', 
-        value_columns=['sales', 'website_visits', 'temperature']
-    )
-    
-    for column, pattern_info in patterns.items():
-        print(f"\n   {column.upper()}:")
-        print(f"     Trend direction: {pattern_info['trend']['direction']}")
-        print(f"     Trend strength: {pattern_info['trend']['strength']:.4f}")
-        print(f"     Has seasonality: {pattern_info['seasonality']['has_seasonality']}")
-        if pattern_info['seasonality']['detected_periods']:
-            print(f"     Detected periods: {pattern_info['seasonality']['detected_periods'][:3]}")
-        print(f"     Anomalies: {pattern_info['anomalies']['count']} ({pattern_info['anomalies']['percentage']:.2f}%)")
-        print(f"     Is stationary: {pattern_info['stationarity']['is_stationary']}")
-    
-    return ts_df
 
 
 def demo_data_quality_assessment(df):
@@ -267,12 +119,6 @@ def main():
     
     # Demo 2: Feature Engineering
     engineered_df = demo_feature_engineering(sample_df)
-    
-    # Demo 3: Synthetic Data Generation
-    synthetic_df = demo_synthetic_data_generation()
-    
-    # Demo 4: Time Series Analysis
-    ts_df = demo_time_series_analysis()
     
     # Demo 5: Data Quality Assessment
     demo_data_quality_assessment(sample_df)
