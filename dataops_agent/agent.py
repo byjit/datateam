@@ -47,7 +47,6 @@ root_agent = LlmAgent(
     sub_agents=[
         data_explorer_agent,
         data_extraction_agent,
-        data_processor_agent.data_processor_agent,
     ],
     tools=[]
 )

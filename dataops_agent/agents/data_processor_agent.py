@@ -4,7 +4,7 @@ from google.adk.models import LlmRequest, LlmResponse
 from google.genai import types
 from typing import List, Dict, Any, Optional
 import asyncio
-from google.adk.tools.mcp_tool.mcp_toolset import MCPToolset, StdioServerParameters
+from google.adk.tools.mcp_tool.mcp_toolset import MCPToolset
 from google.adk.tools import google_search, FunctionTool
 import os
 from google.adk.runners import Runner
@@ -25,29 +25,9 @@ from dataops_agent.tools.data_processing.data_processing_tools import (
     create_polynomial_features_tool,
     create_datetime_features_tool,
     encode_categorical_features_tool,
-    
-    # Data generation tools
-    generate_synthetic_data_tool,
-    balance_dataset_tool,
-    
-    # Time series tools
-    detect_time_series_patterns_tool,
-    create_time_series_features_tool
 )
 
 DATA_PROCESSING_AI_MODEL = "gemini-2.0-flash"
-
-code_agent = LlmAgent(
-    name='code_agent',
-    model=DATA_PROCESSING_AI_MODEL,
-    executor=[BuiltInCodeExecutor],
-    instruction="""You are a Python code execution agent. Your task is to execute Python code to process data.
-        You will receive Python code as input, and you should execute it to process the data as specified.
-        Ensure that the code is safe to execute and does not contain any harmful operations.
-        If the code requires any specific libraries, ensure they are available in the execution environment.
-    """,
-    description="Executes Python code to process data",
-)
 
 data_processor_agent = LlmAgent(
     name="data_processor_agent",
@@ -72,15 +52,7 @@ data_processor_agent = LlmAgent(
        - Use `create_datetime_features_tool` for temporal feature extraction
        - Use `encode_categorical_features_tool` for categorical encoding
     
-    4. **Data Generation & Augmentation**:
-       - Use `generate_synthetic_data_tool` for creating synthetic datasets
-       - Use `balance_dataset_tool` for handling imbalanced data
-    
-    5. **Time Series Analysis**:
-       - Use `detect_time_series_patterns_tool` for pattern detection
-       - Use `create_time_series_features_tool` for time series feature engineering
-    
-    6. **Code Execution**:
+    4. **Code Execution**:
        - Delegate to `code_agent` for custom data processing tasks
        - Execute Python code for complex transformations
     
@@ -97,9 +69,6 @@ data_processor_agent = LlmAgent(
     - Handle errors gracefully with fallback options
     - Document all transformations applied
     """,
-    sub_agents=[
-        code_agent
-    ],
     tools=[
         # Core processing tools
         clean_dataframe_comprehensive_tool,
@@ -113,14 +82,6 @@ data_processor_agent = LlmAgent(
         create_polynomial_features_tool,
         create_datetime_features_tool,
         encode_categorical_features_tool,
-        
-        # Data generation tools
-        generate_synthetic_data_tool,
-        balance_dataset_tool,
-        
-        # Time series tools
-        detect_time_series_patterns_tool,
-        create_time_series_features_tool
     ],
 )
 

@@ -5,11 +5,11 @@ from google.genai import types
 from typing import List, Dict, Any, Optional
 import asyncio
 from google.adk.tools.mcp_tool.mcp_toolset import MCPToolset, StdioServerParameters
-from google.adk.tools import google_search, FunctionTool
+from google.adk.tools import FunctionTool
 from dataops_agent.tools.web_tools import search_kaggle_datasets_tool, search_sources_using_sonar_tool
 import os
 
-SOURCE_DISCOVERY_AI_MODEL = "gemini-2.0-flash"
+SOURCE_DISCOVERY_AI_MODEL = "gemini-2.5-flash"
 
 
 data_explorer_agent = LlmAgent(

@@ -6,10 +6,12 @@ from typing import List, Dict, Any, Optional
 import asyncio
 import time, os
 import asyncio
-from dataops_agent.tools.web_tools import download_kaggle_dataset_tool, save_to_local_file_tool
-from google.adk.tools.mcp_tool.mcp_toolset import MCPToolset, StdioServerParameters
 
-DATA_EXTRACTION_AI_MODEL =  "gemini-2.5-flash-preview-05-20"
+from grpc import server
+from dataops_agent.tools.web_tools import download_kaggle_dataset_tool, save_to_local_file_tool
+from google.adk.tools.mcp_tool.mcp_toolset import MCPToolset, StdioConnectionParams, StdioServerParameters
+
+DATA_EXTRACTION_AI_MODEL =  "gemini-2.5-flash"
 
 
 data_extraction_agent = LlmAgent(
@@ -53,17 +55,19 @@ data_extraction_agent = LlmAgent(
     # before_model_callback=check_data_extraction_tools
     tools=[
         MCPToolset(
-            connection_params=StdioServerParameters(
-                command='npx',
-                args=["-y", "@brightdata/mcp"],
-                env={
-                    "API_TOKEN": os.getenv("BRIGHTDATA_API_TOKEN", ""),
-                    "WEB_UNLOCKER_ZONE": os.getenv("BRIGHTDATA_UB_ZONE", ""),
-                    "BROWSER_AUTH": os.getenv("BRIGHTDATA_BROWSER_AUTH", ""),
-                }
-            )
+            connection_params=StdioConnectionParams(
+                server_params= StdioServerParameters(
+                    command='npx',
+                    args=["-y", "@brightdata/mcp"],
+                    env={
+                        "API_TOKEN": os.getenv("BRIGHTDATA_API_TOKEN", ""),
+                        "WEB_UNLOCKER_ZONE": os.getenv("BRIGHTDATA_UB_ZONE", ""),
+                        "BROWSER_AUTH": os.getenv("BRIGHTDATA_BROWSER_AUTH", ""),
+                    },
+                ),
+                timeout=60,  # Set a timeout for the connection
+            ),
         ),
         download_kaggle_dataset_tool,
-        save_to_local_file_tool,
     ]
   )
