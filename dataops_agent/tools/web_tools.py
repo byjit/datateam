@@ -47,7 +47,7 @@ def download_kaggle_dataset(source_url: str):
         api = KaggleApi()
         download_path: str = os.path.join(os.getcwd(), "data")
         api.authenticate()
-        dataset_ref = source_url.replace('https://www.kaggle.com/datasets/', '').split('/')[-1]  # Extract dataset reference from URL
+        dataset_ref = source_url.replace('https://www.kaggle.com/datasets/', '') # Extract dataset reference from URL
 
         logging.info(f"Downloading dataset '{dataset_ref}' to '{download_path}'...")
         api.dataset_download_files(dataset_ref, path=download_path, unzip=True)
