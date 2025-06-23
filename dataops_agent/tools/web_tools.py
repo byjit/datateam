@@ -33,7 +33,7 @@ def search_kaggle_datasets(query: str, max_results: int = 10):
         logging.error(f"An error occurred while searching for datasets: {e}")
         return []
 
-def download_kaggle_dataset(source_url: str, download_path: str = os.path.join(os.getcwd(), "data")):
+def download_kaggle_dataset(source_url: str):
     """
     Downloads a dataset from Kaggle.
 
@@ -45,6 +45,7 @@ def download_kaggle_dataset(source_url: str, download_path: str = os.path.join(o
     """
     try:
         api = KaggleApi()
+        download_path: str = os.path.join(os.getcwd(), "data")
         api.authenticate()
         dataset_ref = source_url.replace('https://www.kaggle.com/datasets/', '').split('/')[-1]  # Extract dataset reference from URL
 
